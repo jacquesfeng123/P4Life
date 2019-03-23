@@ -2,7 +2,8 @@
 this is a temporarily public repository for a POC smart-phone based analyser for reagent strips
 
 
-##Environment Config
+## Environment Config
+
 1. download Expo App on the phone
 2. install nodejs & npm
 3. `npm install -g expo`
