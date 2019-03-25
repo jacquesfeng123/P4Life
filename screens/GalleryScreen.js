@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, View, TouchableOpacity, Text,StatusBar } from 'react-native';
+import { Image, StyleSheet, View, TouchableOpacity, Text,StatusBar,Platform,Alert } from 'react-native';
 import { FileSystem, MediaLibrary, Permissions} from 'expo';
 
 const PHOTOS_DIR = FileSystem.documentDirectory+ 'photos';
@@ -25,9 +25,39 @@ export default class GalleryScreen extends React.Component {
     await FileSystem.deleteAsync(PHOTOS_DIR+'/'+photo)
   }
 
-  analyze = async () => {
-    this.props.nav.navigation.navigate('Result',{uri:this.props.uri})
+  sendImageAsync = async (uri) => {
+    // console.log('URI:', uri)
+    const ip = this.props.ip
+    let apiUrl = 'http://'+ ip + ':5000/poc';
+    console.log(apiUrl)
+    let formData = new FormData();
+    formData.append('photo',  {
+      uri:Platform.OS === "android" ? uri : uri.replace("file://", ""),
+      name:'photo.jpg',
+      type:'image/jpg'
+    });
+  
+    let options = {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data'
+      },
+    };
+  
+    return fetch(apiUrl, options);
+  }
 
+  analyze = async () => {
+    try {
+      let response = await this.sendImageAsync(this.props.uri)
+      let results = await response.json()
+      // console.log('\n boom \n', results)
+      this.props.nav.navigation.navigate('Result',{uri:this.props.uri, data:results})
+    }catch(error){
+      Alert.alert('Connection error',`here is the error message: \n ${error} \n\n press OKAY to return to homepage`,[{text:'Okay',onPress:()=>this.props.nav.navigation.navigate('Home')}])
+    }
     //ANALYZE HERE
   };
 

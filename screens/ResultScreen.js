@@ -14,11 +14,9 @@ import { SQLite,FileSystem } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Results from '../assets/results';
 
-// import { MonoText } from '../components/StyledText';
+const subjectsCN =['白细胞','尿胆原','微量白蛋白','蛋白质','胆红素','葡萄糖','抗坏血酸','比重','酮体','亚硝酸盐','肌酐','pH值','隐血','尿钙']
+const subjectsEN =['Leukocyte','Urobilinogen','Microalbumin','Protein','Bilirubin','Glucose','Ascorbic acid','Specific Gravity','Ketone','Nitrite','Creatine','pH','Blood','Calcium'] 
 
-const subjectsCN =['白细胞','尿胆原','微量白蛋白','胆红素','葡萄糖','抗坏血酸','比重','酮体','亚硝酸盐','肌酐','pH值','隐血','尿钙']
-const subjectsEN =['Leukocyte','Urobilinogen','Protein','Bilirubin','Glucose','Ascorbic acid','Specific Gravity','Ketone','Nitrite','Creatine','pH','Blood','Calcium'] 
-// const db = SQLite.openDatabase({name:'urineTest.db'});
 
 export default class ResultScreen extends React.Component {
   static navigationOptions = {
@@ -27,7 +25,12 @@ export default class ResultScreen extends React.Component {
 
   state={
     uid:'',
-    results:[],
+    results:{},
+  }
+
+  componentDidMount = async () =>{
+    const result = this.props.navigation.getParam('data')
+    this.setState({results:result})
   }
 
   save2db(){
@@ -37,24 +40,23 @@ export default class ResultScreen extends React.Component {
   }
 
   async write2db(){
-
     Results.createTable()
     const props ={
       uid:this.state.uid,
-      data1: 1, 
-      data2: 2, 
-      data3: 3, 
-      data4: 4,
-      data5: 5,
-      data6: 6, 
-      data7: 7, 
-      data8: 8, 
-      data9: 9, 
-      data10: 0, 
-      data11: 1, 
-      data12: 2, 
-      data13: 3, 
-      data14: 4, 
+      data1: this.state.results[subjectsEN[1]]['res'], 
+      data2: this.state.results[subjectsEN[2]]['res'], 
+      data3: this.state.results[subjectsEN[3]]['res'],  
+      data4: this.state.results[subjectsEN[4]]['res'], 
+      data5: this.state.results[subjectsEN[5]]['res'], 
+      data6: this.state.results[subjectsEN[6]]['res'], 
+      data7: this.state.results[subjectsEN[7]]['res'], 
+      data8: this.state.results[subjectsEN[8]]['res'],  
+      data9: this.state.results[subjectsEN[9]]['res'], 
+      data10: this.state.results[subjectsEN[10]]['res'],  
+      data11: this.state.results[subjectsEN[11]]['res'],  
+      data12: this.state.results[subjectsEN[12]]['res'],  
+      data13: this.state.results[subjectsEN[13]]['res'],  
+      data14: this.state.results[subjectsEN[14]]['res'],  
       timestamp: Date.now()
     }
     Results.create(props)
@@ -63,25 +65,6 @@ export default class ResultScreen extends React.Component {
       from: this.props.navigation.getParam('uri'),
       to: `${FileSystem.documentDirectory}photos/${this.state.uid}.jpg`,
     });
-
-    // const photos = await FileSystem.readDirectoryAsync(PHOTOS_DIR);
-    // console.log('Photos updated to database, list of photos: ', photos)
-
-    // const databaseLayer = new DatabaseLayer(async () => SQLite.openDatabase('urineTest.db'))
-    // databaseLayer.executeSql('SELECT * from Results').then(response => {
-    // console.log('!!!!!updated results:', response)
-    // })
-
-  
-
-
-    // await db.transaction(tx => {
-    //   tx.executeSql(
-    //     'create table if not exists result(id integer primary key not null, date int, Leukocyte float(4,2),Urobilinogen float(4,2),Protein float(4,2),Bilirubin float(4,2),Glucose float(4,2),Ascorbic acid float(4,2),Specific Gravity float(4,2),Ketone float(4,2),Nitrite float(4,2),Creatine float(4,2),pH float(4,2),Blood float(4,2),Calcium float(4,2));'
-    //   );
-    // });
-  
-
     this.props.navigation.navigate('Home')
 
   }
@@ -110,20 +93,29 @@ export default class ResultScreen extends React.Component {
               onChangeText={(uid) => this.setState({uid})}
               value={this.state.uid}
             />
+            
           </View>
-          <Text style={{color:'rgba(0,0,0,0.4)'}}>note if you enter the same UID it will overwrite old data with same uid </Text>
+
+          <Text style={{marginHorizontal:20,color:'rgba(96,100,109, 0.3)',fontSize:8}}>note if you enter the same UID it will overwrite old data with same uid </Text>
+          
       
           <View style={styles.resultContainer}>
             {
               subjectsCN.map((value,index)=>{
                 return(
                   <View style={styles.resultItemContainer} key={index}>
-                    <Ionicons name="ios-help-circle-outline" size={20}/>
+                    {/* <Ionicons name="ios-help-circle-outline" size={20}/> */}
                     <View style={{width:'50%'}}>
                       <Text style={styles.getStartedText}>{value}({subjectsEN[index]})</Text>
                     </View>
-                    <Text style={styles.getStartedText}>{this.state.results[index]?this.state.results[index]:'n/a'}</Text>
-                    <Ionicons name="ios-arrow-dropdown" size={20}/>
+                    <Text style={styles.getStartedText}>
+                      {this.state.results[subjectsEN[index]]?this.state.results[subjectsEN[index]]['res'] :'n/a'}
+                    </Text>
+                    <Text style={styles.getStartedText}>
+                      {this.state.results[subjectsEN[index]]?this.state.results[subjectsEN[index]]['conf'].toFixed(2):'n/a'}
+                    </Text>
+
+                    {/* <Ionicons name="ios-arrow-dropdown" size={20}/> */}
                   </View>
                 )
               })
