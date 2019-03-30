@@ -9,11 +9,10 @@ import {
   View,
   Alert,
   TextInput,
+  AsyncStorage,
 } from 'react-native';
-import { SQLite,FileSystem } from 'expo';
+import { SQLite,FileSystem,Constants } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
-import Results from '../assets/results';
-
 const subjectsCN =['白细胞','尿胆原','微量白蛋白','蛋白质','胆红素','葡萄糖','抗坏血酸','比重','酮体','亚硝酸盐','肌酐','pH值','隐血','尿钙']
 const subjectsEN =['Leukocyte','Urobilinogen','Microalbumin','Protein','Bilirubin','Glucose','Ascorbic acid','Specific Gravity','Ketone','Nitrite','Creatine','pH','Blood','Calcium'] 
 
@@ -34,39 +33,54 @@ export default class ResultScreen extends React.Component {
   }
 
   save2db(){
-    // this.state.results[0]&&this.state.uid ? Alert.alert('Alert','save to database?',[{text:'Cancel'},{text:'OK',onPress:()=>this.write2db()}]) : Alert.alert('Alert','results not valid or uid not defined, data deleted, press cancel to enter uid or redo to return to homepage',[{text:'Cancel'},{text:'Redo',onPress:()=>this.props.navigation.navigate('Home')}])
-    this.state.uid ? Alert.alert('Alert','save to database?',[{text:'Cancel'},{text:'OK',onPress:()=>this.write2db()}]) : Alert.alert('Alert','results not valid or uid not defined, \n\n 1) press CANCEL to enter uid \n or \n 2) HOME to retake the data',[{text:'Cancel'},{text:'Home',onPress:()=>this.props.navigation.navigate('Home')}])
-    //SHOULD WE MAKE UID UNIQUE? OVERWRITE etc????
+    this.state.uid ? Alert.alert('Alert','save to database?',[{text:'Cancel'},{text:'OK',onPress:()=>this.sendData2Server()}]) : Alert.alert('Alert','results not valid or uid not defined, \n\n 1) press CANCEL to enter uid \n or \n 2) HOME to retake the data',[{text:'Cancel'},{text:'Home',onPress:()=>this.props.navigation.navigate('Home')}])
   }
 
-  async write2db(){
-    Results.createTable()
-    const props ={
+  sendData2Server = async (uri) => {
+    const ip = this.props.navigation.getParam('ip')
+    let apiUrl = 'http://'+ ip + ':5000/save2db';
+    let ID =''
+    try {
+      ID = await AsyncStorage.getItem('DEV');
+    } catch (error) {
+      Alert.alert('attention',`pulling saved data: ${error}`)
+    }
+    const output ={
+      dev: ID,
       uid:this.state.uid,
-      data1: this.state.results[subjectsEN[1]]['res'], 
-      data2: this.state.results[subjectsEN[2]]['res'], 
-      data3: this.state.results[subjectsEN[3]]['res'],  
-      data4: this.state.results[subjectsEN[4]]['res'], 
-      data5: this.state.results[subjectsEN[5]]['res'], 
-      data6: this.state.results[subjectsEN[6]]['res'], 
-      data7: this.state.results[subjectsEN[7]]['res'], 
-      data8: this.state.results[subjectsEN[8]]['res'],  
-      data9: this.state.results[subjectsEN[9]]['res'], 
-      data10: this.state.results[subjectsEN[10]]['res'],  
-      data11: this.state.results[subjectsEN[11]]['res'],  
-      data12: this.state.results[subjectsEN[12]]['res'],  
-      data13: this.state.results[subjectsEN[13]]['res'],  
-      data14: this.state.results[subjectsEN[14]]['res'],  
+      data1: this.state.results[subjectsEN[0]]['res'], 
+      data2: this.state.results[subjectsEN[1]]['res'], 
+      data3: this.state.results[subjectsEN[2]]['res'],  
+      data4: this.state.results[subjectsEN[3]]['res'], 
+      data5: this.state.results[subjectsEN[4]]['res'], 
+      data6: this.state.results[subjectsEN[5]]['res'], 
+      data7: this.state.results[subjectsEN[6]]['res'], 
+      data8: this.state.results[subjectsEN[7]]['res'],  
+      data9: this.state.results[subjectsEN[8]]['res'], 
+      data10: this.state.results[subjectsEN[9]]['res'],  
+      data11: this.state.results[subjectsEN[10]]['res'],  
+      data12: this.state.results[subjectsEN[11]]['res'],  
+      data13: this.state.results[subjectsEN[12]]['res'],  
+      data14: this.state.results[subjectsEN[13]]['res'],  
       timestamp: Date.now()
     }
-    Results.create(props)
-
-    await FileSystem.moveAsync({
-      from: this.props.navigation.getParam('uri'),
-      to: `${FileSystem.documentDirectory}photos/${this.state.uid}.jpg`,
-    });
-    this.props.navigation.navigate('Home')
-
+  
+    let options = {
+      method: 'POST',
+      body: JSON.stringify(output),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+    };
+    
+    try {
+      let results = await fetch(apiUrl, options);
+      console.log(results)
+      this.props.navigation.navigate('Home')
+    }catch(error){
+      Alert.alert('Something went wrong',`here is the error message: \n ${error} \n\n press OKAY to return to homepage`,[{text:'Cancel'},{text:'Okay',onPress:()=>this.props.nav.navigation.navigate('Home')}])
+    }
   }
 
   deleteData(){
@@ -96,7 +110,7 @@ export default class ResultScreen extends React.Component {
             
           </View>
 
-          <Text style={{marginHorizontal:20,color:'rgba(96,100,109, 0.3)',fontSize:8}}>note if you enter the same UID it will overwrite old data with same uid </Text>
+          {/* <Text style={{marginHorizontal:20,color:'rgba(96,100,109, 0.3)',fontSize:8}}>note if you enter the same UID it will overwrite old data with same uid </Text> */}
           
       
           <View style={styles.resultContainer}>
@@ -142,11 +156,13 @@ const styles = StyleSheet.create({
     marginHorizontal:20,
   },
   inputBox:{
+    paddingLeft:3,
     height: 20, 
     borderColor: 'gray', 
     borderWidth: 1,
     borderRadius: 5,
     width:150,
+    flex:1
   },
   resultContainer:{
     paddingTop:25,

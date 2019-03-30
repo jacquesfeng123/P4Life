@@ -1,16 +1,16 @@
 import React from 'react';
 import {
   Image,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   TextInput,
-  Alert
+  Alert,
+  AsyncStorage,
 } from 'react-native';
-import { WebBrowser } from 'expo';
+import { WebBrowser, Constants } from 'expo';
 
 import { MonoText } from '../components/StyledText';
 
@@ -21,10 +21,32 @@ export default class HomeScreen extends React.Component {
 
   state={
     ip:'',
+    dev:''
   }
 
-  moveForward() {
-    console.log(this.state.ip)
+  componentDidMount = async () => {
+    try {
+      const value = await AsyncStorage.getItem('IP');
+      const ID = await AsyncStorage.getItem('DEV');
+      if (value !== null) {
+        this.setState({ip:value})
+      }
+      if (ID !== null) {
+        this.setState({dev:ID})
+      }
+    } catch (error) {
+      Alert.alert('attention',`pulling saved data: ${error}`)
+    }
+  }
+
+  moveForward = async () => {
+    // console.log(this.state.ip)
+    try {
+      await AsyncStorage.setItem('IP', this.state.ip);
+      await AsyncStorage.setItem('DEV', this.state.dev);
+    } catch (error) {
+      Alert.alert('attention',`saving data: ${error}`)
+    }
     this.state.ip? this.props.navigation.navigate('Camera',{ip:this.state.ip}) : Alert.alert('Warning','Please enter an IP address for the server')
   }
 
@@ -41,7 +63,15 @@ export default class HomeScreen extends React.Component {
               value={this.state.ip}
             />
           </View>
-          <Text style={{marginHorizontal:35,color:'rgba(96,100,109, 0.3)',fontSize:8}}>Must Enter or else you cannot move foward </Text>
+          <View style={styles.inputContainer}>
+            <Text style={styles.uidText}>Testing Device: </Text>
+            <TextInput
+              style={styles.inputBox}
+              onChangeText={(dev) => this.setState({dev})}
+              value={this.state.dev}
+            />
+          </View>
+          <Text style={{marginHorizontal:20,color:'rgba(96,100,109, 0.3)',fontSize:8}}>Must Enter or else you cannot move foward </Text>
 
 
           <View style={styles.buttonContainer}>
@@ -70,9 +100,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   inputContainer:{
+    flex:1,
     flexDirection:'row',
-    justifyContent:'center',
-    paddingTop:20,
+    justifyContent:'flex-start',
+    paddingTop:8,
     marginHorizontal:20,
   },
   inputBox:{
@@ -80,7 +111,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(96,100,109, 0.5)', 
     borderWidth: 1,
     borderRadius: 5,
-    width:240,
+    paddingHorizontal:3,
+    alignSelf:'stretch',
+    justifyContent:'center',
+    alignItems:'center',
+    flex:1,
   },
   uidText:{
     fontSize: 14,
@@ -93,8 +128,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex:1,
     alignItems: 'center',
-    marginTop: 60,
-    marginBottom: 40,
+    marginTop: 50,
+    marginBottom: 25,
   },
   photoButton:{
     height:150,
@@ -103,10 +138,10 @@ const styles = StyleSheet.create({
   getStartedContainer: {
     alignItems: 'center',
     marginHorizontal: 50,
-    paddingTop:50,
+    paddingTop:25,
   },
   noteText: {
-    marginTop:40,
+    marginTop:30,
     fontSize: 12,
     color: 'rgba(96,100,109, 0.5)',
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, StyleSheet, View, TouchableOpacity, Text,StatusBar,Platform,Alert } from 'react-native';
+import { Image, StyleSheet, View, TouchableOpacity, Text,StatusBar,Platform,Alert,TouchableHighlight } from 'react-native';
 import { FileSystem, MediaLibrary, Permissions} from 'expo';
 
 const PHOTOS_DIR = FileSystem.documentDirectory+ 'photos';
@@ -29,7 +29,7 @@ export default class GalleryScreen extends React.Component {
     // console.log('URI:', uri)
     const ip = this.props.ip
     let apiUrl = 'http://'+ ip + ':5000/poc';
-    console.log(apiUrl)
+    // console.log(apiUrl)
     let formData = new FormData();
     formData.append('photo',  {
       uri:Platform.OS === "android" ? uri : uri.replace("file://", ""),
@@ -54,7 +54,7 @@ export default class GalleryScreen extends React.Component {
       let response = await this.sendImageAsync(this.props.uri)
       let results = await response.json()
       // console.log('\n boom \n', results)
-      this.props.nav.navigation.navigate('Result',{uri:this.props.uri, data:results})
+      this.props.nav.navigation.navigate('Result',{uri:this.props.uri, data:results,ip:this.props.ip})
     }catch(error){
       Alert.alert('Connection error',`here is the error message: \n ${error} \n\n press OKAY to return to homepage`,[{text:'Okay',onPress:()=>this.props.nav.navigation.navigate('Home')}])
     }
@@ -66,19 +66,16 @@ export default class GalleryScreen extends React.Component {
     // console.log(this.props.uri)
     return (
       <View style={styles.container}>
-
         <View style={{zIndex:-1}}>
           <Image style={styles.image} source={{uri:this.props.uri}}/>
         </View>
-
-
         <View style={styles.navbar}>
-          <TouchableOpacity style={styles.button} onPress={this.props.onPress}>
+          <TouchableHighlight style={styles.button} onPress={this.props.onPress}>
             <Text style={styles.whiteText}>Delete</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={this.analyze}>
+          </TouchableHighlight>
+          <TouchableHighlight style={styles.button} onPress={this.analyze}>
             <Text style={styles.whiteText}>Analyze</Text>
-          </TouchableOpacity>
+          </TouchableHighlight>
         </View>
 
       </View>
