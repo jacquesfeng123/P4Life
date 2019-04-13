@@ -13,9 +13,11 @@
   "dependencies": {
     "@expo/samples": "2.1.1",
     "expo": "^32.0.0",
+    "expo-image-crop": "^0.2.2",
     "expo-sqlite-orm": "^1.4.1",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-easy-gestures": "^2.2.4",
     "react-navigation": "^3.0.9"
   },
   "devDependencies": {

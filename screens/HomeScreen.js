@@ -10,9 +10,6 @@ import {
   Alert,
   AsyncStorage,
 } from 'react-native';
-import { WebBrowser, Constants } from 'expo';
-
-import { MonoText } from '../components/StyledText';
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -47,7 +44,7 @@ export default class HomeScreen extends React.Component {
     } catch (error) {
       Alert.alert('attention',`saving data: ${error}`)
     }
-    this.state.ip? this.props.navigation.navigate('Camera',{ip:this.state.ip}) : Alert.alert('Warning','Please enter an IP address for the server')
+    this.state.ip && this.state.dev? this.props.navigation.navigate('Camera',{ip:this.state.ip}) : Alert.alert('Warning','Please enter an IP address for the server')
   }
 
   render() {
@@ -123,12 +120,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   contentContainer: {
-    paddingTop: 30,
+    paddingTop: 80,
   },
   buttonContainer: {
     flex:1,
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 80,
     marginBottom: 25,
   },
   photoButton:{
@@ -138,10 +135,10 @@ const styles = StyleSheet.create({
   getStartedContainer: {
     alignItems: 'center',
     marginHorizontal: 50,
-    paddingTop:25,
+    paddingTop:60,
   },
   noteText: {
-    marginTop:30,
+    marginTop:25,
     fontSize: 12,
     color: 'rgba(96,100,109, 0.5)',
   },

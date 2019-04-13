@@ -87,20 +87,16 @@ export default class CameraScreen extends React.Component {
     this.setState({ permissionsGranted: status === 'granted' });
   }
 
-  async componentDidMount() {
-    // FileSystem.makeDirectoryAsync(FileSystem.cacheDirectory + 'photos').catch(e => {
-    //   console.log(e, 'Directory exists');
-    // });
-    // const photo = await FileSystem.readDirectoryAsync(FileSystem.cacheDirectory + 'photos');
-    // console.log(photo)
-    // if (photo){
-    //   console.log('DELETED OLD PHOTO')
-    //   this.deleteOldPhoto(photo)
-    // }
-  }
-
-  // deleteOldPhoto = async (photo) =>{
-  //   await FileSystem.deleteAsync(FileSystem.cacheDirectory + 'photos'+'/'+photo)
+  // async componentDidMount() {
+  //   // FileSystem.makeDirectoryAsync(FileSystem.cacheDirectory + 'photos').catch(e => {
+  //   //   console.log(e, 'Directory exists');
+  //   // });
+  //   // const photo = await FileSystem.readDirectoryAsync(FileSystem.cacheDirectory + 'photos');
+  //   // console.log(photo)
+  //   // if (photo){
+  //   //   console.log('DELETED OLD PHOTO')
+  //   //   this.deleteOldPhoto(photo)
+  //   // }
   // }
 
   getRatios = async () => {
@@ -127,17 +123,12 @@ export default class CameraScreen extends React.Component {
   handleMountError = ({ message }) => console.error(message);
 
   onPictureSaved = async photo => {
-    // await FileSystem.moveAsync({
-    //   from: photo.uri,
-    //   to: `${FileSystem.cacheDirectory}photos/${Date.now()}.jpg`,
-    // });
     this.toggleView(photo);
   }
 
 
   renderGallery() {
     ip = this.props.navigation.getParam('ip')
-    // console.log(ip)
     return <GalleryScreen onPress={this.toggleView.bind(this)} uri={this.state.imageUri} nav={this.props} ip={ip}/>;
   }
 
@@ -241,7 +232,7 @@ const styles = StyleSheet.create({
   },
   middleBox:{
     marginHorizontal:50,
-    width:height/(1.5*16.4)+8,
+    width:height/(1.5*14)+8,
     height:height/1.5+8,
     backgroundColor:'transparent',
     borderColor:'white',

@@ -4,63 +4,13 @@ import { createStackNavigator, createBottomTabNavigator } from 'react-navigation
 
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
-import SettingsScreen from '../screens/SettingsScreen';
 import CameraScreen from '../screens/CameraScreen';
 import ResultScreen from '../screens/ResultScreen';
 
-const HomeStack = createStackNavigator({
-  Home: HomeScreen,
-});
 
-HomeStack.navigationOptions = {
-  tabBarLabel: 'Home',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={
-        Platform.OS === 'ios'
-          ? `ios-information-circle${focused ? '' : '-outline'}`
-          : 'md-information-circle'
-      }
-    />
-  ),
-};
-
-// const LinksStack = createStackNavigator({
-//   Links: LinksScreen,
-// });
-
-// LinksStack.navigationOptions = {
-//   tabBarLabel: 'Records',
-//   tabBarIcon: ({ focused }) => (
-//     <TabBarIcon
-//       focused={focused}
-//       name={Platform.OS === 'ios' ? 'ios-link' : 'md-link'}
-//     />
-//   ),
-// };
-
-const SettingsStack = createStackNavigator({
-  Settings: SettingsScreen,
-});
-
-SettingsStack.navigationOptions = {
-  tabBarLabel: 'Settings',
-  tabBarIcon: ({ focused }) => (
-    <TabBarIcon
-      focused={focused}
-      name={Platform.OS === 'ios' ? 'ios-options' : 'md-options'}
-    />
-  ),
-};
-const Tabs = createBottomTabNavigator({
-  HomeStack,
-  // LinksStack,
-  SettingsStack,
-});
 
 export default createStackNavigator({
-  Tabs:Tabs,
+  Home: HomeScreen,
   Camera: CameraScreen,
   Result: ResultScreen,
 });

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Image, StyleSheet, View, TouchableOpacity, Text,StatusBar,Platform,Alert,TouchableHighlight } from 'react-native';
+import { Image, StyleSheet, View, TouchableOpacity, Text,StatusBar,Platform,Alert,TouchableHighlight,ImageBackground,Dimensions,Button } from 'react-native';
 import { FileSystem, MediaLibrary, Permissions} from 'expo';
+import { ImageManipulator } from 'expo-image-crop'
 
 const PHOTOS_DIR = FileSystem.documentDirectory+ 'photos';
 
@@ -8,22 +9,18 @@ export default class GalleryScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
-  // state = {
-  //   photo:'',
-  // };
+  state = {
+    isVisible:false,
+    uri:this.props.uri,
+    readyforprocess:false,
+  };
 
   componentDidMount = async () => {
     StatusBar.setHidden(true);
     FileSystem.makeDirectoryAsync(PHOTOS_DIR).catch(e => {
       console.log(e, 'Directory exists');
     });
-    // const photos = await FileSystem.readDirectoryAsync(PHOTOS_DIR);
-    // this.setState({ photo:photos[0]});
   };
-
-  deleteAllPhotos = async (photo) =>{
-    await FileSystem.deleteAsync(PHOTOS_DIR+'/'+photo)
-  }
 
   sendImageAsync = async (uri) => {
     // console.log('URI:', uri)
@@ -51,36 +48,78 @@ export default class GalleryScreen extends React.Component {
 
   analyze = async () => {
     try {
-      let response = await this.sendImageAsync(this.props.uri)
+      let response = await this.sendImageAsync(this.state.uri)
       let results = await response.json()
       // console.log('\n boom \n', results)
-      this.props.nav.navigation.navigate('Result',{uri:this.props.uri, data:results,ip:this.props.ip})
+      this.props.nav.navigation.navigate('Result',{uri:this.state.uri, data:results,ip:this.props.ip})
     }catch(error){
       Alert.alert('Connection error',`here is the error message: \n ${error} \n\n press OKAY to return to homepage`,[{text:'Okay',onPress:()=>this.props.nav.navigation.navigate('Home')}])
     }
     //ANALYZE HERE
-  };
+  }
+
+  onToggleModal = () => {
+    const { isVisible } = this.state
+    this.setState({ isVisible: !isVisible })
+  }
 
 
   render() {
-    // console.log(this.props.uri)
+    const { uri, isVisible } = this.state
+    const { width, height } = Dimensions.get('window')
     return (
-      <View style={styles.container}>
-        <View style={{zIndex:-1}}>
-          <Image style={styles.image} source={{uri:this.props.uri}}/>
-        </View>
-        <View style={styles.navbar}>
-          <TouchableHighlight style={styles.button} onPress={this.props.onPress}>
-            <Text style={styles.whiteText}>Delete</Text>
-          </TouchableHighlight>
-          <TouchableHighlight style={styles.button} onPress={this.analyze}>
-            <Text style={styles.whiteText}>Analyze</Text>
-          </TouchableHighlight>
-        </View>
-
-      </View>
-    );
+      <ImageBackground
+        resizeMode="contain"
+        style={{justifyContent: 'center', padding: 20, alignItems: 'center', height, width, backgroundColor: 'black'}}
+        source={{ uri }}
+      >
+        {this.state.readyforprocess ? 
+          <View style={styles.navbar}>
+            <TouchableHighlight style={styles.button} onPress={this.props.onPress}>
+              <Text style={styles.whiteText}>Delete</Text>
+            </TouchableHighlight>
+            <TouchableHighlight style={styles.button} onPress={this.analyze}>
+              <Text style={styles.whiteText}>Analyze</Text>
+            </TouchableHighlight>
+          </View>
+          :
+          <View style={styles.navbar}>
+            <TouchableHighlight style={styles.button} onPress={() => this.setState({ isVisible: true })}>
+              <Text style={styles.whiteText}>Crop</Text>
+            </TouchableHighlight>
+          </View>
+          }
+        <ImageManipulator
+            photo={{ uri }}
+            isVisible={isVisible}
+            onPictureChoosed={uriM => this.setState({ uri: uriM, readyforprocess:true })}
+            onToggleModal={this.onToggleModal}
+        />
+      </ImageBackground>
+    )
   }
+
+  // render() {
+  //   const { uri, isVisible } = this.state
+  //   const { width, height } = Dimensions.get('window')
+  //   // console.log(this.props.uri)
+  //   return (
+  //     <View style={styles.container}>
+  //       <View style={{zIndex:-1}}>
+  //         <Image style={styles.image} source={{uri:this.props.uri}}/>
+  //       </View>
+  //       <View style={styles.navbar}>
+  //         <TouchableHighlight style={styles.button} onPress={this.props.onPress}>
+  //           <Text style={styles.whiteText}>Delete</Text>
+  //         </TouchableHighlight>
+  //         <TouchableHighlight style={styles.button} onPress={this.analyze}>
+  //           <Text style={styles.whiteText}>Analyze</Text>
+  //         </TouchableHighlight>
+  //       </View>
+
+  //     </View>
+  //   );
+  // }
 }
 
 const styles = StyleSheet.create({
@@ -90,19 +129,28 @@ const styles = StyleSheet.create({
   },
   navbar: {
     position:'absolute',
-    top:0,
-    left:10,
-    flexDirection: 'column',
-    height:'100%',
+    bottom:0,
+    flexDirection: 'row',
+    height:'15%',
+    width:'100%',
     alignItems: 'center',
     justifyContent: 'space-around'
   },
+  // navbar: {
+  //   position:'absolute',
+  //   top:0,
+  //   left:10,
+  //   flexDirection: 'column',
+  //   height:'100%',
+  //   alignItems: 'center',
+  //   justifyContent: 'space-around'
+  // },
   image: {
     width:'100%',
     height:'100%'
   },
   button: {
-    transform: [{ rotate: '90deg'}],
+    // transform: [{ rotate: '90deg'}],
     alignItems:'center',
     justifyContent:'center',
     height:60,
