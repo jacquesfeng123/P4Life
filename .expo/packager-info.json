@@ -1,10 +1,10 @@
 {
-  "devToolsPort": 19002,
-  "expoServerPort": null,
-  "packagerPort": null,
-  "packagerPid": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null,
+  "devToolsPort": 19003,
+  "expoServerPort": 19000,
+  "packagerPort": 19001,
+  "packagerPid": 23509,
+  "expoServerNgrokUrl": "https://n6-pft.almightylollipop.checkpee4life.exp.direct",
+  "packagerNgrokUrl": "https://packager.n6-pft.almightylollipop.checkpee4life.exp.direct",
+  "ngrokPid": 23523,
   "webpackServerPort": null
 }
