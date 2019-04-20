@@ -5,10 +5,10 @@ import { FileSystem, MediaLibrary, Permissions,ImageManipulator} from 'expo';
 const PHOTOS_DIR = FileSystem.documentDirectory+ 'photos';
 
 const { width, height } = Dimensions.get('window')
-const startY = (height-height/(1.5)+2)/2
-const startX = (width-height/(1.5*14)+2)/2
-const startW = height/(1.5*14)+2
-const startH = height/1.5+2
+const startY = (height-height/(1.2))/2
+const startX = (width-height/(1.2*90/14))/2
+const startW = height/(1.2*90/14)
+const startH = height/1.2
 
 export default class GalleryScreen extends React.Component {
   static navigationOptions = {
@@ -18,7 +18,7 @@ export default class GalleryScreen extends React.Component {
   static defaultProps = {
     scalable: true,
     minScale: 0.5,
-    maxScale: 2
+    maxScale: 1.5
   };
   
   constructor(props){
@@ -33,9 +33,8 @@ export default class GalleryScreen extends React.Component {
       offsetY: 0,
       lastX: 0,
       lastY: 0,
-      lastMovePinch: false
+      lastMovePinch: false,
     };
-
     this.distant = 150;
 
     this.gestureHandlers = PanResponder.create({
@@ -120,10 +119,10 @@ export default class GalleryScreen extends React.Component {
     }
   };
 
-  sendImageAsync = async (uri) => {
+  sendImageAsync = async (uri,method=':5000/poc') => {
     // console.log('URI:', uri)
     const ip = this.props.ip
-    let apiUrl = 'http://'+ ip + ':5000/poc';
+    let apiUrl = 'http://'+ ip + method;
     // console.log(apiUrl)
     let formData = new FormData();
     formData.append('photo',  {
@@ -158,57 +157,52 @@ export default class GalleryScreen extends React.Component {
 
   onCropImage = async () => {
     const { uri } = this.state
-    let imgW,imgH
 
     Image.getSize(
       uri,
       (W,H)=>{
-        console.log(W,H)
+        // console.log(W,H)
         imgW=W
         imgH=H
-        const ratio = imgW/width
-        let originX = (startX + this.state.offsetX)*ratio
-        let originY= (startY + this.state.offsetY)*ratio
-        let cropWidth = startW * this.state.scale*ratio
-        let cropHeight = startH * this.state.scale*ratio
-    
-    
+        const ratioW = imgW/width
+        const ratioH = imgH/height
+        // console.log('ratios:', ratioW,ratioH)
+        // console.log('states:', this.state.scale,this.state.offsetY)
+        let originX = ((startX + this.state.offsetX)-startW*(this.state.scale-1)/2)*ratioW
+        let originY= ((startY + this.state.offsetY)-startH*(this.state.scale-1)/2)*ratioH
+        let cropWidth = startW * this.state.scale*ratioW
+        let cropHeight = startH * this.state.scale*ratioH
+        
         const cropObj = {
             originX,
             originY,
             width: cropWidth,
             height: cropHeight,
         }
-        console.log('\n Cropping', cropObj, height,cropObj.originY + cropHeight)
-        if (cropObj.originX> 0 && cropObj.originX + cropWidth< width*ratio && cropObj.originY > 0 && cropObj.originY + cropHeight< height*ratio) {
+
+        // console.log('\n Cropping', cropObj)
+
+        if (cropObj.originX> 0 && cropObj.originX + cropWidth< imgW && cropObj.originY > 0 && cropObj.originY + cropHeight< imgH) {
           ImageManipulator.manipulateAsync(
             this.state.uri,
             [{
               crop: cropObj,
             }],
-            //MAYBE NEED TO BE JPG
             { format: 'jpg' },
           ).then((manipResult) => {
-            console.log(manipResult)
+            // console.log(manipResult)
             this.setState({ uri: manipResult.uri, readyforprocess:true })
           }).catch(error => console.log(error))
         }else{
-          console.log(cropObj)
+          // console.log(cropObj)
           Alert.alert('Attention','Crop window is ourside of the window, please verify before cropping')
         }
       },
       (error)=>{console.log(error)})
   }
 
-  // onToggleModal = () => {
-  //   const { isVisible } = this.state
-  //   this.setState({ isVisible: !isVisible })
-  // }
-
-
   render() {
     const { uri, isVisible } = this.state
-
     return (
       <ImageBackground
         resizeMode="contain"
@@ -223,6 +217,7 @@ export default class GalleryScreen extends React.Component {
                 {
                   borderStyle: 'dashed',
                   borderRadius: 2,
+                  //borderWidth goes inward
                   borderWidth: 1,
                   borderColor: 'pink',
                   flex: 1,
@@ -310,7 +305,6 @@ const styles = StyleSheet.create({
   bottom:{
     flex:1,
     justifyContent:'flex-end',
-    
   },
   navbar: {
     flexDirection: 'row',

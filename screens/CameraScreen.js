@@ -23,6 +23,10 @@ import {
 
 const landmarkSize = 2;
 var {height, width} = Dimensions.get('window');
+const startY = (height-height/(1.2))/2
+const startX = (width-height/(1.2*90/14))/2
+const startW = height/(1.2*90/14)
+const startH = height/1.2
 
 const flashModeOrder = {
   off: 'torch',
@@ -226,17 +230,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   boxContainer:{
-    alignItems:'center',
-    justifyContent:'center',
-    flexDirection:'row'
+    flex:1,
+    position:'absolute',
+    top:0,
+    left:0
   },
   middleBox:{
-    marginHorizontal:50,
-    width:height/(1.5*14)+8,
-    height:height/1.5+8,
-    backgroundColor:'transparent',
-    borderColor:'white',
-    borderWidth:4,
+      borderStyle: 'dashed',
+      borderRadius: 2,
+      //borderWidth goes inward
+      borderWidth: 1,
+      borderColor: 'pink',
+      flex: 1,
+      width:startW,
+      //border width *2
+      height:startH,
+      position: 'absolute',
+      top:startY,
+      left:startX,
+      backgroundColor: 'rgba(255,255,255,0.5)',
   },
   topBar: {
     flex: 0.2,

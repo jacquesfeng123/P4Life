@@ -10,12 +10,13 @@ import {
   Alert,
   TextInput,
   AsyncStorage,
+  Dimensions
 } from 'react-native';
 import { SQLite,FileSystem,Constants } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 const subjectsCN =['白细胞','尿胆原','微量白蛋白','蛋白质','胆红素','葡萄糖','抗坏血酸','比重','酮体','亚硝酸盐','肌酐','pH值','隐血','尿钙']
 const subjectsEN =['Leukocyte','Urobilinogen','Microalbumin','Protein','Bilirubin','Glucose','Ascorbic acid','Specific Gravity','Ketone','Nitrite','Creatine','pH','Blood','Calcium'] 
-
+const { width, height } = Dimensions.get('window')
 
 export default class ResultScreen extends React.Component {
   static navigationOptions = {
@@ -28,6 +29,7 @@ export default class ResultScreen extends React.Component {
   }
 
   componentDidMount = async () =>{
+    // let res = await this.receiveImage()
     const result = this.props.navigation.getParam('data')
     this.setState({results:result})
   }
@@ -36,7 +38,19 @@ export default class ResultScreen extends React.Component {
     this.state.uid ? Alert.alert('Alert','save to database?',[{text:'Cancel'},{text:'OK',onPress:()=>this.sendData2Server()}]) : Alert.alert('Alert','results not valid or uid not defined, \n\n 1) press CANCEL to enter uid \n or \n 2) HOME to retake the data',[{text:'Cancel'},{text:'Home',onPress:()=>this.props.navigation.navigate('Home')}])
   }
 
-  sendData2Server = async (uri) => {
+  // receiveImage = async() =>{
+  //   const ip = this.props.navigation.getParam('ip')
+  //   let apiUrl = 'http://'+ ip + ':5000/return-files'
+  //   try {
+  //     let results = await fetch(apiUrl);
+  //     console.log('\n\n blsdkfgalshjsgafewltrhtl',results)
+  //     return results
+  //   }catch(error){
+  //     Alert.alert('Something went wrong',`here is the error message: \n ${error} \n\n press OKAY to return to homepage`,[{text:'Cancel'},{text:'Okay',onPress:()=>this.props.nav.navigation.navigate('Home')}])
+  //   }
+  // }
+
+  sendData2Server = async () => {
     const ip = this.props.navigation.getParam('ip')
     let apiUrl = 'http://'+ ip + ':5000/save2db';
     let ID =''
@@ -76,7 +90,7 @@ export default class ResultScreen extends React.Component {
     
     try {
       let results = await fetch(apiUrl, options);
-      console.log(results)
+      console.log('\n\n lollipop', results)
       this.props.navigation.navigate('Home')
     }catch(error){
       Alert.alert('Something went wrong',`here is the error message: \n ${error} \n\n press OKAY to return to homepage`,[{text:'Cancel'},{text:'Okay',onPress:()=>this.props.nav.navigation.navigate('Home')}])
@@ -88,6 +102,7 @@ export default class ResultScreen extends React.Component {
   }
 
   render() {
+    const ip = this.props.navigation.getParam('ip')
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -135,6 +150,7 @@ export default class ResultScreen extends React.Component {
               })
             }
           </View>
+          <Image source={{uri:'http://' + ip + ':5000/return-files'}}  style={{width: width, height: height,resizeMode:'contain'}}/>
         </ScrollView>
       </View>
     );
